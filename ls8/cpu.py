@@ -34,7 +34,7 @@ class CPU:
         address = 0
 
         # For now, we've just hardcoded a program:
-
+        """
         program = [
             # From print8.ls8
             0b10000010, # LDI R0,8
@@ -43,6 +43,21 @@ class CPU:
             0b01000111, # PRN R0
             0b00000000,
             0b00000001, # HLT
+        ]
+        """
+        program = [
+           0b10000010, # LDI R0,8
+           0b00000000,
+           0b00001000,
+           0b10000010, # LDI R1,9
+           0b00000001,
+           0b00001001,
+           0b10100010, # MUL R0,R1
+           0b00000000,
+           0b00000001,
+           0b01000111, # PRN R0
+           0b00000000,
+           0b00000001 # HLT 
         ]
 
         for instruction in program:
@@ -91,10 +106,10 @@ class CPU:
             # Convert fl_bin_string into int format and store the result in fl
             self.fl = int(fl_bin_string, 2)
         
-        elif opcode == "DEC":
+        elif op == "DEC":
             self.reg[reg_a] -= 1
         
-        elif opcode == "DIV":
+        elif op == "DIV":
             # Catch any divide-by-zero attempts
             if self.reg[reg_b] == 0:
                 print("ERROR: Cannot DIVide by 0")
@@ -102,13 +117,13 @@ class CPU:
 
             self.reg[reg_a] /= self.reg[reg_b]
 
-        elif opcode == "INC":
+        elif op == "INC":
             self.reg[reg_a] += 1
         
-        elif opcode == "SUB":
+        elif op == "SUB":
             self.reg[reg_a] -= self.reg[reg_b]
         
-        elif opcode == "MOD":
+        elif op == "MOD":
             # Catch any modulo-by-zero attempts
             if self.reg[reg_b] == 0:
                 print("ERROR: Cannot MODulo by 0")
@@ -116,30 +131,33 @@ class CPU:
 
             self.reg[reg_a] %= self.reg[reg_b]
 
-        elif opcode == "MUL":
+        elif op == "MUL":
             self.reg[reg_a] *= self.reg[reg_b]
 
-        elif opcode == "NOT":
+        elif op == "NOT":
             # Python ~ operator doesn't work for this, XOR using a bitmask for NOT effect
             self.reg[reg_a] ^= 0b11111111
 
-        elif opcode == "OR":
+        elif op == "OR":
             self.reg[reg_a] |= self.reg[reg_b]
 
-        elif opcode == "SHL":
+        elif op == "SHL":
             self.reg[reg_a] = self.reg[reg_a] << self.reg[reg_b]
         
-        elif opcode == "SHR":
+        elif op == "SHR":
             self.reg[reg_a] = self.reg[reg_b] >> self.reg[reg_b]
 
-        elif opcode == "SUB":
+        elif op == "SUB":
             self.reg[reg_a] -= self.reg[reg_b]
 
-        elif opcode == "XOR":
+        elif op == "XOR":
             self.reg[reg_a] ^= self.reg[reg_b]
 
         else:
             raise Exception("Unsupported ALU operation")
+        
+        # & 0xFF register
+        self.reg[reg_a] &= 0xFF
 
     def trace(self):
         """
@@ -245,7 +263,7 @@ class CPU:
                     exit()
 
                 if t[self.ir] == 'LDI':
-                    self.reg[operand_a] = operand_b 
+                    self.reg[operand_a] = (operand_b & 0xFF)
 
                 elif t[self.ir] == 'PRN':
                     print(self.reg[operand_a])
