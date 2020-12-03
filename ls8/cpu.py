@@ -9,7 +9,7 @@ class CPU:
         """Construct a new CPU."""
         self.ram = [0x0] * 256         # 256b of ram
         self.reg = [0x0] * 8           # 8 registers
-        self.reg[7] = 0xF4             # Set as per "power on state"
+        self.reg[7] = 0xF4             # Stack pointer
                                   # R5 is reserved as the interrupt mask (IM)
                                   # R6 is reserved as the interrupt status (IS)
                                   # R7 is reserved as the stack pointer (SP)
@@ -41,7 +41,8 @@ class CPU:
             line = f.readline()
 
             while line != "":
-                program.append(int(line[:8], 2))
+                if line[0] == '0' or line[0] == '1':
+                    program.append(int(line[:8], 2))
                 line = f.readline()
 
         if len(program) > 256:
@@ -172,11 +173,16 @@ class CPU:
         print()
 
     def ram_read(self, addr):        # NOTE: ram methods do not bounds check
-        return self.ram[addr]
+        self.mar = addr
+        self.mdr = self.ram[addr]
+        return self.mdr
     
     def ram_write(addr, value):
         if (value & 0xFF) != value:
             print('WARNING: ram_write() called with value > 255')
+
+        self.mar = addr
+        self.mdr = value
         self.ram[addr] = value
 
     def run(self):
@@ -259,6 +265,14 @@ class CPU:
 
                 elif t[self.ir] == 'PRN':
                     print(self.reg[operand_a])
+        
+                elif t[self.ir] == 'PUSH':
+                    self.reg[7] -= 1
+                    self.ram[self.reg[7]] = self.reg[operand_a]
+                
+                elif t[self.ir] == 'POP':
+                    self.reg[operand_a] = self.ram[self.reg[7]]
+                    self.reg[7] += 1
             
             # Set Program Counter
             if setsPC == 0:
