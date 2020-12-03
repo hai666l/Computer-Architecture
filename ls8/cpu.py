@@ -29,36 +29,28 @@ class CPU:
             # E Equal: during a CMP, set to 1 if registerA is equal to registerB, zero otherwise.
 
     def load(self):
+        program = []
+        
+        """ Read program from file. """        
+
+        if len(sys.argv) != 2:
+            print("ERROR: system arguments must be equal to 2!")
+            exit()
+
+        with open(sys.argv[1]) as f:
+            line = f.readline()
+
+            while line != "":
+                program.append(int(line[:8], 2))
+                line = f.readline()
+
+        if len(program) > 256:
+            print("ERROR: Program length > 256 instructions")
+            exit()
+
         """Load a program into memory."""
 
         address = 0
-
-        # For now, we've just hardcoded a program:
-        """
-        program = [
-            # From print8.ls8
-            0b10000010, # LDI R0,8
-            0b00000000,
-            0b00001000,
-            0b01000111, # PRN R0
-            0b00000000,
-            0b00000001, # HLT
-        ]
-        """
-        program = [
-           0b10000010, # LDI R0,8
-           0b00000000,
-           0b00001000,
-           0b10000010, # LDI R1,9
-           0b00000001,
-           0b00001001,
-           0b10100010, # MUL R0,R1
-           0b00000000,
-           0b00000001,
-           0b01000111, # PRN R0
-           0b00000000,
-           0b00000001 # HLT 
-        ]
 
         for instruction in program:
             self.ram[address] = instruction
