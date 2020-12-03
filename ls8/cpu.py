@@ -7,6 +7,26 @@ class CPU:
 
     def __init__(self):
         """Construct a new CPU."""
+        ram = [0x0] * 256         # 256b of ram
+        register = [0x0] * 8      # 8 registers
+                                  # R5 is reserved as the interrupt mask (IM)
+                                  # R6 is reserved as the interrupt status (IS)
+                                  # R7 is reserved as the stack pointer (SP)
+
+        # Internal Registers
+        pc = ir = mar = mdr = fl = 0x0
+        # PC: Program Counter, address of the currently executing instruction
+        # IR: Instruction Register, contains a copy of the currently executing instruction
+        # MAR: Memory Address Register, holds the memory address we're reading or writing
+        # MDR: Memory Data Register, holds the value to write or the value just read
+        # FL: Flags, see below
+
+        # FL bits: 00000LGE
+
+            # L Less-than: during a CMP, set to 1 if registerA is less than registerB, zero otherwise.
+            # G Greater-than: during a CMP, set to 1 if registerA is greater than registerB, zero otherwise.
+            # E Equal: during a CMP, set to 1 if registerA is equal to registerB, zero otherwise.
+
         pass
 
     def load(self):
@@ -63,3 +83,7 @@ class CPU:
     def run(self):
         """Run the CPU."""
         pass
+
+# Test code
+if __name__ == "__main__":
+    testCPU = CPU()
