@@ -83,6 +83,15 @@ class CPU:
     def run(self):
         """Run the CPU."""
         pass
+    
+    # Added methods
+    def ram_read(addr):        # NOTE: ram methods do not bounds check
+        return ram[addr]
+    
+    def ram_write(addr, value):
+        if (value & 0xFF) != value:
+            print('WARNING: ram_write() called with value > 255')
+        ram[addr] = value
 
 # Test code
 if __name__ == "__main__":
