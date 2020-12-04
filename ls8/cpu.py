@@ -73,28 +73,31 @@ class CPU:
 
             # Clear FL bits
             self.fl = 0x0
-            fl_bin_string = bin(self.fl)[2:].zfill(8)
+            #fl_bin_string = bin(self.fl)[2:].zfill(8)
+            fl_bin_list = ["0"] * 8
 
             if valA == valB:
                 # Set E flag to 1
-                fl_bin_string[-1] = '1'
+                fl_bin_list[-1] = "1"
             else:
                 # set E flag to 0
-                fl_bin_string[-1] = '0'
+                fl_bin_list[-1] = "0"
 
             if valA < valB:
                 # Set L flag to 1
-                fl_bin_string[-3] = '1'
+                fl_bin_list[-3] = "1"
             else:
                 # Set L flag to 0
-                fl_bin_string[-3] = '0'
+                fl_bin_list[-3] = "0"
             
             if valA > valB:
                 # Set G flag to 1
-                fl_bin_string[-2] = '1'
+                fl_bin_list[-2] = "1"
             else:
                 # Set G flag to 0
-                fl_bin_string[-2] = '0'
+                fl_bin_list[-2] = "0"
+
+            fl_bin_string = "".join(fl_bin_list)
 
             # Convert fl_bin_string into int format and store the result in fl
             self.fl = int(fl_bin_string, 2)
@@ -247,10 +250,11 @@ class CPU:
                     0xAD: 'SHR',
                     0x84: 'ST',
                     0xA1: 'SUB',
-                    0xAB: 'XOR'
+                    0xAB: 'XOR',
+                    0x55: 'JEQ',
                     }        
 
-            print(t[self.ir])
+            # print(t[self.ir])
            
             # Run ALU operation if applicable
             if isALU == 1: 
@@ -260,7 +264,10 @@ class CPU:
                 if t[self.ir] == 'HLT':
                     exit()
 
-                if t[self.ir] == 'LDI':
+                if t[self.ir] == 'LD':
+                    self.reg[operand_a] = self.ram[self.reg[operand_b]]
+
+                elif t[self.ir] == 'LDI':
                     self.reg[operand_a] = (operand_b & 0xFF)
 
                 elif t[self.ir] == 'PRN':
@@ -282,6 +289,56 @@ class CPU:
                 elif t[self.ir] == 'RET':
                     self.pc = self.ram[self.reg[7]]
                     self.reg[7] += 1
+                
+                elif t[self.ir] == 'ST':
+                    self.reg[operand_a] = self.reg[operand_b]
+                
+                elif t[self.ir] == 'JEQ':
+                    if self.fl == 1:
+                        self.pc = self.reg[operand_a]
+                    else:
+                        setsPC = 0
+
+                elif t[self.ir] == 'JGE':
+                    if self.fl == 2 or self.fl == 1:
+                        self.pc = self.reg[operand_a]
+                    else:
+                        setsPC = 0
+
+                elif t[self.ir] == 'JGT':
+                    if self.fl == 2:
+                        self.pc = self.reg[operand_a]
+                    else:
+                        setsPC = 0
+
+                elif t[self.ir] == 'JLE':
+                    if self.fl == 4 or self.fl == 1:
+                        self.pc = self.reg[operand_a]
+                    else:
+                        setsPC = 0
+
+                elif t[self.ir] == 'JLT':
+                    if self.fl == 4:
+                        self.pc = self.reg[operand_a]
+                    else:
+                        setsPC = 0
+
+                elif t[self.ir] == 'JMP':
+                    self.pc = self.reg[operand_a]
+
+                elif t[self.ir] == 'JNE':
+                    if self.fl == 4 or self.fl == 2:
+                        self.pc = self.reg[operand_a]
+                    else:
+                        setsPC = 0
+                
+                elif t[self.ir] == 'PRA':
+                    print(chr(self.reg[operand_a]), end='')
+
+                else:
+                    print("WARNING: Unsupported opcode: 0x%02x" % self.ir)
+                    exit()
+
             
             # Set Program Counter
             if setsPC == 0:
