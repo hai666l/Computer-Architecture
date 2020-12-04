@@ -45,8 +45,8 @@ class CPU:
                     program.append(int(line[:8], 2))
                 line = f.readline()
 
-        if len(program) > 256:
-            print("ERROR: Program length > 256 instructions")
+        if len(program) > 256 or len(program) == 0:
+            print("ERROR: Program len invalid")
             exit()
 
         """Load a program into memory."""
@@ -273,14 +273,16 @@ class CPU:
                 elif t[self.ir] == 'POP':
                     self.reg[operand_a] = self.ram[self.reg[7]]
                     self.reg[7] += 1
+                
+                elif t[self.ir] == 'CALL':
+                    self.reg[7] -= 1
+                    self.ram[self.reg[7]] = self.pc + 2  # Save next instruction on stack
+                    self.pc = self.reg[operand_a] # Set PC to register A's val
+
+                elif t[self.ir] == 'RET':
+                    self.pc = self.ram[self.reg[7]]
+                    self.reg[7] += 1
             
             # Set Program Counter
             if setsPC == 0:
                 self.pc += operandCount + 1
-    
-
-# Test code
-if __name__ == "__main__":
-    testCPU = CPU()
-    testCPU.load()
-    testCPU.run()
