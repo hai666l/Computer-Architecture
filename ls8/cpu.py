@@ -254,7 +254,7 @@ class CPU:
                     0x55: 'JEQ',
                     }        
 
-            # print(t[self.ir])
+            # print('\t',t[self.ir])
            
             # Run ALU operation if applicable
             if isALU == 1: 
@@ -327,7 +327,7 @@ class CPU:
                     self.pc = self.reg[operand_a]
 
                 elif t[self.ir] == 'JNE':
-                    if self.fl == 4 or self.fl == 2:
+                    if self.fl != 1:
                         self.pc = self.reg[operand_a]
                     else:
                         setsPC = 0
