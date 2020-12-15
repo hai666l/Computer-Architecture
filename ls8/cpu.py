@@ -343,3 +343,8 @@ class CPU:
             # Set Program Counter
             if setsPC == 0:
                 self.pc += operandCount + 1
+
+            # Stack overflow check
+            if self.reg[7] == self.pc+1:
+                print("ERROR: Stack overflow")
+                exit()
